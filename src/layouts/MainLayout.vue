@@ -52,6 +52,7 @@
    </div>
       <div>
         <q-btn label="Отправить" type="submit" color="primary"/>
+        <div @click="fe" class='black'> 123123 </div>
       </div>
     </q-form>
         </q-toolbar-title>
@@ -66,7 +67,6 @@
       bordered
       content-class="bg-grey-1"
     >
-
     </q-drawer>
 
     <q-page-container>
@@ -77,54 +77,79 @@
 
 <script>
 import EssentialLink from 'components/EssentialLink'
-import store from '../store/index'
-import state from '../store/module-example/state'
-
+import Axios from 'axios'
 export default {
   name: 'MainLayout',
-
   components: {
     EssentialLink
   },
-
   data () {
     return {
-      token:null,
+      header:null,
       login:null,
       password:null,
       leftDrawerOpen: false,
-      
     }
+  },
+  created(){
+
   },
   methods:{
     onSubmit () {
+      console.log(localStorage.auth_token)
       const url = 'http://127.0.0.1:8000/auth/token/login'
       let data2 = {
         password:this.password,
         username:this.login
       }
       let data = JSON.stringify(data2)
-      console.log(data)
+    // Форматирую полученные данные в json формат
       fetch(url, {
         method:'POST',
         body:data,
-        headers:{'content-type':'application/json'}
+        headers:{
+          'content-type':'application/json', 
+        }
       }).then(function(response){
-        return response.json()
+        if(response.status == '400'){
+          alert('Неверный логин или пароль')
+        }
+        else {
+            return response.json()    
+        }
+
+        // Отправляю запрос на сервер
+        
       }).then(function(data){
-        console.log(data)
-        MutationEvent:{
-          SET_TOKEN: (state, data) => {
-            state.token = data
-          }
-        }
-         let a = this.$store.state.token
-        let set = function(data){
-          $store.commit('auth/set_token', val)
-        }
+        // Получаю в ответ токен с сервера
+          localStorage.setItem('auth_token', data.auth_token)
       })
+    },
+    fe(){
+      console.log('token' +localStorage.auth_token)
+    let myHeaders = new Headers();
+myHeaders.append("Authorization", "token"+' '+localStorage.auth_token);
+
+
+var requestOptions = {
+  method: 'GET',
+  headers: myHeaders,
+  redirect: 'follow'
+};
+
+fetch("http://127.0.0.1:8000/auth/users/me", requestOptions)
+  .then(response => response.text())
+  .then(result => console.log(result))
+  .catch(error => console.log('error', error));
     }
   },
+  mounted(){
 
+  }
 }
 </script>
+<style scoped>
+*{
+  color:black;
+}
+</style>
