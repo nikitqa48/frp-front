@@ -23,9 +23,7 @@
     flat round color="black" icon="close" @click="show=!show"/>
     </div>
     <div class="form_container">
-          <h2 class="left-top">
-      Связаться с нами
-    </h2>
+
     <hr class="border_bottom">
    <div class="form_inside">
      <div class="inside">
@@ -67,6 +65,7 @@
       bordered
       content-class="bg-grey-1"
     >
+   <q-btn  class="header_button" to ='/auth' stretch flat label="Работай" />
     </q-drawer>
 
     <q-page-container>
@@ -85,6 +84,7 @@ export default {
   },
   data () {
     return {
+      authorizate:false,
       header:null,
       login:null,
       password:null,
@@ -96,12 +96,13 @@ export default {
   },
   methods:{
     onSubmit () {
-      console.log(localStorage.auth_token)
+      let authorizate = window.authorizate == false
       const url = 'http://127.0.0.1:8000/auth/token/login'
       let data2 = {
         password:this.password,
         username:this.login
       }
+
       let data = JSON.stringify(data2)
     // Форматирую полученные данные в json формат
       fetch(url, {
@@ -117,19 +118,24 @@ export default {
         else {
             return response.json()    
         }
-
         // Отправляю запрос на сервер
         
       }).then(function(data){
         // Получаю в ответ токен с сервера
           localStorage.setItem('auth_token', data.auth_token)
-      })
+          alert('Вы вошли')
+          window.authorizate = true
+          console.log(window.authorizate)
+      }) 
+      if (window.authorizate == true){
+          this.$router.push('/auth')
+      }
     },
     fe(){
-      console.log('token' +localStorage.auth_token)
-    let myHeaders = new Headers();
+      console.log(window.authorizate)
+    // localStorage.setItem('auth_token', null)
+  let myHeaders = new Headers();
 myHeaders.append("Authorization", "token"+' '+localStorage.auth_token);
-
 
 var requestOptions = {
   method: 'GET',
@@ -145,6 +151,9 @@ fetch("http://127.0.0.1:8000/auth/users/me", requestOptions)
   },
   mounted(){
 
+  },
+  watch:{
+  
   }
 }
 </script>
